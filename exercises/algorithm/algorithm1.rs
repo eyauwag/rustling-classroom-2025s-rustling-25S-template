@@ -2,7 +2,7 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
+
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -69,14 +69,42 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
-	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+	pub fn merge(mut list_a:LinkedList<T>,mut list_b:LinkedList<T>) -> Self where T:Ord,
+	{  
+        let mut merged_list = LinkedList::new();
+        let mut current_a = list_a.start;
+        let mut current_b = list_b.start;
+
+        while current_a.is_some() && current_b.is_some() {
+            let val_a = unsafe { &(*current_a.unwrap().as_ptr()).val };
+            let val_b = unsafe { &(*current_b.unwrap().as_ptr()).val };
+
+            if val_a <= val_b {
+                let next_a = unsafe { (*current_a.unwrap().as_ptr()).next };
+                merged_list.add(unsafe { std::ptr::read(current_a.unwrap().as_ptr()) }.val);
+                current_a = next_a;
+            } else {
+                let next_b = unsafe { (*current_b.unwrap().as_ptr()).next };
+                merged_list.add(unsafe { std::ptr::read(current_b.unwrap().as_ptr()) }.val);
+                current_b = next_b;
+            }
         }
+
+        // 添加 list_a 中剩余的节点
+        while current_a.is_some() {
+            let next_a = unsafe { (*current_a.unwrap().as_ptr()).next };
+            merged_list.add(unsafe { std::ptr::read(current_a.unwrap().as_ptr()) }.val);
+            current_a = next_a;
+        }
+
+        // 添加 list_b 中剩余的节点
+        while current_b.is_some() {
+            let next_b = unsafe { (*current_b.unwrap().as_ptr()).next };
+            merged_list.add(unsafe { std::ptr::read(current_b.unwrap().as_ptr()) }.val);
+            current_b = next_b;
+        }
+
+        merged_list
 	}
 }
 
